@@ -1,6 +1,31 @@
 @import "~tui-calendar/dist/tui-calendar.css";
 @import "./styles-fonts.scss";
 
+* {
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: 'open_sans';
+}
+
+.calendar-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+#calendar {
+  height: 1300px;
+  transform: translateY(-33px);
+}
+
+.tui-full-calendar-timegrid-hour:first-child span {
+  display: block !important;
+  top: 0 !important;
+}
+
+
+.tui-full-calendar-dayname-container {
+  display: none;
 }
