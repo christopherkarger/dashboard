@@ -19,8 +19,16 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     });
   }
 
-  changedView() {
+  changedView(): void {
     this.calendar.changeView(this.calendarForm.value.calendarView, true);
+  }
+
+  next(): void {  
+    this.calendar.next();
+  }
+
+  prev(): void {  
+    this.calendar.prev();
   }
 
   ngAfterViewInit() {
