@@ -1,11 +1,4 @@
-.calendar-wrapper {
-  position: relative;
-  overflow: hidden;
-}
-
-#calendar {
-  height: 1300px;
-}
+// Dirty Fixes
 
 .tui-full-calendar-timegrid-hour:first-child span {
   display: block !important;
@@ -18,3 +11,4 @@
     display: none;
   }
 }
+//------------

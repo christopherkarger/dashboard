@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit } from "@angular/core";
 import Calendar from "tui-calendar";
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: "app-calendar",
@@ -7,10 +8,23 @@ import Calendar from "tui-calendar";
   styleUrls: ["./calendar.component.scss"]
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
-  constructor() {}
+  calendarForm: FormGroup;
+  calendar: any;
+
+  constructor(
+    private fb: FormBuilder
+  ) {
+    this.calendarForm = this.fb.group({
+      calendarView: 'week'
+    });
+  }
+
+  changedView() {
+    this.calendar.changeView(this.calendarForm.value.calendarView, true);
+  }
 
   ngAfterViewInit() {
-    const calendar = new Calendar("#calendar", {
+    this.calendar = new Calendar("#calendar", {
       useCreationPopup: true,
       defaultView: "week",
       usageStatistics: false,
@@ -55,7 +69,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     //   }
     // ]);
 
-    calendar.on("beforeCreateSchedule", function(event) {
+    this.calendar.on("beforeCreateSchedule", function(event) {
       // calendar.createSchedules(event);
       console.log(event);
     });
