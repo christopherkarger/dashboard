@@ -1,4 +1,5 @@
 import { NgModule } from "@angular/core";
+import { ReactiveFormsModule } from "@angular/forms";
 import { HomeComponent } from './home.component';
 import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '../shared.module';
@@ -16,6 +17,7 @@ const routes: Routes = [
   declarations: [HomeComponent, CalendarComponent],
   imports: [
     SharedModule,
+    ReactiveFormsModule,
     RouterModule.forChild(routes)
   ],
 })
