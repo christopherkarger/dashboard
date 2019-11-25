@@ -12,17 +12,24 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     const calendar = new Calendar("#calendar", {
       useCreationPopup: true,
-      defaultView: "day",
+      defaultView: "week",
       usageStatistics: false,
       taskView: false,
+
       template: {
         timegridDisplayPrimaryTime: time => {
           return `${time.hour < 10 ? 0 : ""}${time.hour}:${
             time.minutes < 10 ? 0 : ""
           }${time.minutes}`;
-        }
+        },
 
       },
+
+      week: {
+        daynames: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+        startDayOfWeek: 1
+      },
+
       theme: {
       }
     });
