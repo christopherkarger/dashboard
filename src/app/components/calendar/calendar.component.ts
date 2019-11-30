@@ -9,7 +9,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
   calendarForm: FormGroup;
-  calendar: any;
+  calendar: Calendar;
 
   constructor(
     private fb: FormBuilder
@@ -31,51 +31,32 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.calendar.prev();
   }
 
+  today(): void {  
+    this.calendar.today();
+  }
+
   ngAfterViewInit() {
     this.calendar = new Calendar("#calendar", {
       useCreationPopup: true,
       defaultView: "week",
       usageStatistics: false,
       taskView: false,
-
       template: {
         timegridDisplayPrimaryTime: time => {
           return `${time.hour < 10 ? 0 : ""}${time.hour}:${
             time.minutes < 10 ? 0 : ""
           }${time.minutes}`;
-        },
-
+        }
       },
-
       week: {
         daynames: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
         startDayOfWeek: 1
       },
-
       theme: {
       }
     });
 
-    // calendar.createSchedules([
-    //   {
-    //     id: "1",
-    //     calendarId: "1",
-    //     title: "my schedule",
-    //     category: "time",
-    //     dueDateClass: "",
-    //     start: "2019-11-22T22:30:00+09:00",
-    //     end: "2019-11-22T02:30:00+09:00"
-    //   },
-    //   {
-    //     id: "2",
-    //     calendarId: "1",
-    //     title: "second schedule",
-    //     category: "time",
-    //     dueDateClass: "",
-    //     start: "2019-11-22T17:30:00+09:00",
-    //     end: "2019-11-22T17:31:00+09:00"
-    //   }
-    // ]);
+    this.mockFakeDate();
 
     this.calendar.on("beforeCreateSchedule", function(event) {
       // calendar.createSchedules(event);
@@ -83,5 +64,35 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     });
   }
 
+
+  mockFakeDate() {
+    const minutes30 = (1000*60*60);
+    const date1 = new Date();
+    const date2 = new Date(date1.getTime() + minutes30);
+
+    const date3 = new Date(date2.getTime() + minutes30);
+    const date4 = new Date(date3.getTime() + (minutes30 * 2));
+
+    this.calendar.createSchedules([
+      {
+        id: "1",
+        calendarId: "1",
+        title: "my schedule",
+        category: "time",
+        dueDateClass: "",
+        start: date1.toISOString(),
+        end: date2.toISOString()
+      },
+      {
+        id: "2",
+        calendarId: "1",
+        title: "second schedule",
+        category: "time",
+        dueDateClass: "",
+        start: date3.toISOString(),
+        end: date4.toISOString()
+      }
+    ]);
+  }
   ngOnInit() {}
 }
