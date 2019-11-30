@@ -37,7 +37,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.calendar = new Calendar("#calendar", {
-      useCreationPopup: true,
+      useCreationPopup: false,
+      useDetailPopup: false,
       defaultView: "week",
       usageStatistics: false,
       taskView: false,
@@ -57,15 +58,17 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     });
 
     this.mockFakeDate();
-
-    this.calendar.on("beforeCreateSchedule", (event) => {
-      // calendar.createSchedules(event);
-      console.log(event);
-    });
-    
     this.calendar.on('beforeUpdateSchedule', (event) => {
       const schedule = event.schedule;
       this.calendar.updateSchedule(schedule.id, schedule.calendarId, event.changes);
+    });
+
+    this.calendar.on("beforeCreateSchedule", (event) => {
+      console.log('beforeCreateSchedule', event);
+    });
+      
+    this.calendar.on("clickSchedule", (event) => {
+      console.log('clickSchedule', event);
     });
 
   }
