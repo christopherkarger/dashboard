@@ -58,10 +58,16 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     this.mockFakeDate();
 
-    this.calendar.on("beforeCreateSchedule", function(event) {
+    this.calendar.on("beforeCreateSchedule", (event) => {
       // calendar.createSchedules(event);
       console.log(event);
     });
+    
+    this.calendar.on('beforeUpdateSchedule', (event) => {
+      const schedule = event.schedule;
+      this.calendar.updateSchedule(schedule.id, schedule.calendarId, event.changes);
+    });
+
   }
 
 
