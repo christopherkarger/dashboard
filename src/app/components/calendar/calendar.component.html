@@ -1,5 +1,5 @@
 <div class="calendar-wrapper">
-  <nav class="calendar-nav">
+  <nav class="calendar-nav" *ngIf="calendar">
     <form [formGroup]="calendarForm">
       <select formControlName="calendarView" (change)="changedView()">
         <option value="week">Woche</option>
@@ -7,6 +7,11 @@
         <option value="month">Monat</option>
       </select>
     </form>
+    <new-entry
+      *ngIf="showNewEntry"
+      eventData="newEntryData"
+      (onClose)="onNewEntryClose()"
+    ></new-entry>
     <button (click)="today()">Heute</button>
     <button (click)="prev()">Zurück</button>
     <button (click)="next()">Vor</button>
