@@ -76,20 +76,21 @@ export class CalendarComponent implements AfterContentInit {
     this.mockFakeDate();
     this.calendar.on('beforeUpdateSchedule', (event: IEventObject) => {
       const schedule = event.schedule;
+      
       if (this.calendar && event.changes) {
         this.calendar.updateSchedule(
           Validator.require(schedule.id),
           Validator.require(schedule.calendarId),
           event.changes
         );
+      } else {
+        throw new Error('event changes are missing');
       }
     });
 
     this.calendar.on("beforeCreateSchedule", (event: ISchedule) => {
-      //console.log('beforeCreateSchedule', event);
       this.newEntryData = event;
       this.showNewEntry = true;
-      console.log(event);
     });
 
     this.calendar.on("clickSchedule", (event: any) => {
