@@ -1,7 +1,9 @@
 <div class="new-entry">
   <div>
     <button (click)="close()">Close</button>
-    <p>New Entry</p>
-
+    <h2>{{ appointmentDate | date: 'dd.MM.yyyy' }}</h2>
+    <form [formGroup]="appointmentForm">
+      <input type="time" formControlName="timeInput" (change)="changedStartTime()">
+    </form>
   </div>
 </div>

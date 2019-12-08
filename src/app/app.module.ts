@@ -5,7 +5,7 @@ import { AngularFirestoreModule } from "@angular/fire/firestore";
 import { AngularFireAuthModule } from "@angular/fire/auth";
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { firebaseConfig } from 'firebase-config';
+import { firebaseConfig } from './configuration/firebase-config';
 
 @NgModule({
   declarations: [

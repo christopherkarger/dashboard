@@ -9,7 +9,8 @@
     </form>
     <new-entry
       *ngIf="showNewEntry"
-      eventData="newEntryData"
+      lala="test"
+      [eventData]="newEntryData"
       (onClose)="onNewEntryClose()"
     ></new-entry>
     <button (click)="today()">Heute</button>
