@@ -3,6 +3,7 @@ import Calendar, { IEventObject, ISchedule } from "tui-calendar";
 import { Validator } from '../../utilities/validator';
 
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { INewEntry } from 'src/app/models/new-entry.model';
 
 @Component({
   selector: "app-calendar",
@@ -10,7 +11,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   styleUrls: ["./calendar.component.scss"]
 })
 export class CalendarComponent implements AfterContentInit {
-  private calendar?: Calendar;
+  calendar?: Calendar;
   calendarForm: FormGroup;
   newEntryData?: ISchedule;
   showNewEntry = false;
@@ -97,6 +98,23 @@ export class CalendarComponent implements AfterContentInit {
       console.log('clickSchedule', event);
     });
 
+  }
+
+  onAddEvent(event: INewEntry) {
+
+    if (this.calendar) {
+      this.calendar.createSchedules([
+        {
+         // id: "3",
+          //calendarId: "1",
+          title: "added",
+          category: "time",
+          //dueDateClass: "",
+          start: event.date.toISOString(),
+          end: new Date(event.date.getTime() + 3000000).toISOString()
+        }
+      ]);
+    }
   }
 
 

@@ -4,6 +4,7 @@
     <h2>{{ appointmentDate | date: 'dd.MM.yyyy' }}</h2>
     <form [formGroup]="appointmentForm">
       <input type="time" formControlName="timeInput" (change)="changedStartTime()">
+      <button (click)="onAddEvent()">Add Event</button>
     </form>
   </div>
 </div>

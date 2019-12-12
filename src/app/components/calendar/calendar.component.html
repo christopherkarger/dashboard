@@ -12,6 +12,7 @@
       lala="test"
       [eventData]="newEntryData"
       (onClose)="onNewEntryClose()"
+      (addEvent)="onAddEvent($event)"
     ></new-entry>
     <button (click)="today()">Heute</button>
     <button (click)="prev()">Zurück</button>
