@@ -1,5 +1,7 @@
-@import "~tui-calendar/dist/tui-calendar.css";
 @import "./styles-fonts.scss";
 @import "./styles-basic.scss";
 @import "./styles-calendar.scss";
 
+@import "~@fullcalendar/core/main.css";
+@import "~@fullcalendar/timegrid/main.css";
+@import "~@fullcalendar/daygrid/main.css";
