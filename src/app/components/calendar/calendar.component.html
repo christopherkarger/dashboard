@@ -10,7 +10,7 @@
     <new-entry
       *ngIf="showNewEntry"
       lala="test"
-      [eventData]="newEntryData"
+      [entryData]="newEntryData"
       (onClose)="onNewEntryClose()"
       (addEvent)="onAddEvent($event)"
     ></new-entry>
@@ -21,4 +21,3 @@
 
   <div id="calendar"></div>
 </div>
-

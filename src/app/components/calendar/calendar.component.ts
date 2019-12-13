@@ -1,9 +1,9 @@
 import { Component, AfterContentInit } from "@angular/core";
 import Calendar, { IEventObject, ISchedule } from "tui-calendar";
-import { Validator } from '../../utilities/validator';
+import { Validator } from "../../utilities/validator";
 
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { INewEntry } from 'src/app/models/new-entry.model';
+import { FormBuilder, FormGroup } from "@angular/forms";
+import { INewEntry, IEntryData } from "src/app/models/new-entry.model";
 
 @Component({
   selector: "app-calendar",
@@ -13,46 +13,46 @@ import { INewEntry } from 'src/app/models/new-entry.model';
 export class CalendarComponent implements AfterContentInit {
   calendar?: Calendar;
   calendarForm: FormGroup;
-  newEntryData?: ISchedule;
+  newEntryData?: IEntryData;
   showNewEntry = false;
 
-  constructor(
-    private fb: FormBuilder
-  ) {
+  constructor(private fb: FormBuilder) {
     this.calendarForm = this.fb.group({
-      calendarView: 'week'
+      calendarView: "week"
     });
   }
 
   changedView(): void {
-    if (this.calendar) {
-      this.calendar.changeView(this.calendarForm.value.calendarView, true);
-    }
+    Validator.require(this.calendar).changeView(
+      this.calendarForm.value.calendarView,
+      true
+    );
   }
 
   next(): void {
-    if (this.calendar) {
-      this.calendar.next();
-    }
+    Validator.require(this.calendar).next();
   }
 
   prev(): void {
-    if (this.calendar) {
-      this.calendar.prev();
-    }
+    Validator.require(this.calendar).prev();
   }
 
   today(): void {
-    if (this.calendar) {
-      this.calendar.today();
-    }
+    Validator.require(this.calendar).today();
   }
 
   onNewEntryClose(): void {
     this.showNewEntry = false;
+    this.clearGuide();
   }
 
-  ngAfterContentInit(): void  {
+  clearGuide() {
+    Validator.require(
+      Validator.require(this.newEntryData).guide
+    ).clearGuideElement();
+  }
+
+  ngAfterContentInit(): void {
     this.calendar = new Calendar("#calendar", {
       useCreationPopup: false,
       useDetailPopup: false,
@@ -67,17 +67,18 @@ export class CalendarComponent implements AfterContentInit {
         }
       },
       week: {
-        daynames: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+        daynames: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
         startDayOfWeek: 1
       },
       theme: {
+        "week.timegridOneHour.height": "100px"
       }
     });
 
     this.mockFakeDate();
-    this.calendar.on('beforeUpdateSchedule', (event: IEventObject) => {
+    this.calendar.on("beforeUpdateSchedule", (event: IEventObject) => {
       const schedule = event.schedule;
-      
+
       if (this.calendar && event.changes) {
         this.calendar.updateSchedule(
           Validator.require(schedule.id),
@@ -85,7 +86,7 @@ export class CalendarComponent implements AfterContentInit {
           event.changes
         );
       } else {
-        throw new Error('event changes are missing');
+        throw new Error("event changes are missing");
       }
     });
 
@@ -95,36 +96,33 @@ export class CalendarComponent implements AfterContentInit {
     });
 
     this.calendar.on("clickSchedule", (event: any) => {
-      console.log('clickSchedule', event);
+      console.log("clickSchedule", event);
     });
-
   }
 
   onAddEvent(event: INewEntry) {
+    Validator.require(this.calendar).createSchedules([
+      {
+        // id: "3",
+        //calendarId: "1",
+        title: "added",
+        category: "time",
+        //dueDateClass: "",
+        start: event.date.toISOString(),
+        end: new Date(event.date.getTime() + 3000000).toISOString()
+      }
+    ]);
 
-    if (this.calendar) {
-      this.calendar.createSchedules([
-        {
-         // id: "3",
-          //calendarId: "1",
-          title: "added",
-          category: "time",
-          //dueDateClass: "",
-          start: event.date.toISOString(),
-          end: new Date(event.date.getTime() + 3000000).toISOString()
-        }
-      ]);
-    }
+    this.clearGuide();
   }
 
-
-  mockFakeDate(): void  {
-    const minutes30 = (1000 * 60 * 60);
+  mockFakeDate(): void {
+    const minutes30 = 1000 * 60 * 60;
     const date1 = new Date();
     const date2 = new Date(date1.getTime() + minutes30);
 
     const date3 = new Date(date2.getTime() + minutes30);
-    const date4 = new Date(date3.getTime() + (minutes30 * 2));
+    const date4 = new Date(date3.getTime() + minutes30 * 2);
     if (this.calendar) {
       this.calendar.createSchedules([
         {
