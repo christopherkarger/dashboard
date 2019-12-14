@@ -3,6 +3,7 @@ import { Validator } from "../../utilities/validator";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import momentPlugin from "@fullcalendar/moment";
+import { DateSpanApi } from "@fullcalendar/core";
 
 //import dayGridPlugin from "@fullcalendar/daygrid";
 import { FullCalendarComponent } from "@fullcalendar/angular";
@@ -31,16 +32,17 @@ export class CalendarComponent implements AfterViewInit {
     });
   }
 
-  dateClick() {
-    alert("a day has been clicked!");
-  }
-
-  onMouseEnter() {
-    console.log("enter");
-  }
-
-  onSelect(evt: any) {
+  onSelect(evt: DateSpanApi) {
     console.log(evt);
+  }
+
+  onSelectAllow(evt: DateSpanApi) {
+    const start = evt.start.getTime();
+    const end = evt.end.getTime();
+    const minutes15 = 1000 * 60 * 15;
+
+    // Return if user tries to select more than 15 minutes
+    return end - start === minutes15;
   }
 
   changedView(): void {}
