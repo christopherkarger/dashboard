@@ -1,0 +1,24 @@
+.fc-header-toolbar {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+.fc-toolbar.fc-header-toolbar {
+  margin-bottom: 0;
+  background: #fff;
+  height: 70px;
+}
+
+.fc-head-container {
+  position: sticky;
+  top: 69px;
+  background: #fff;
+  z-index: 100;
+  &,
+  th,
+  thead {
+    border: 0 !important;
+  }
+}
