@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild } from "@angular/core";
+import { Component, AfterViewInit, ViewChild, ElementRef } from "@angular/core";
 import { Validator } from "../../utilities/validator";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -19,7 +19,10 @@ export class CalendarComponent implements AfterViewInit {
   calendarPlugins = [timeGridPlugin, interactionPlugin, momentPlugin];
 
   @ViewChild("calendar", { static: false })
-  calendarComponent?: FullCalendarComponent;
+  calendar?: FullCalendarComponent;
+
+  @ViewChild("calRef", { static: false })
+  calRef?: ElementRef;
 
   calendarForm: FormGroup;
   showNewEntry = false;
@@ -58,7 +61,94 @@ export class CalendarComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    console.log(this.calendarComponent);
+    if (!this.calendar) {
+      return;
+    }
+
+    function offset(el: HTMLElement) {
+      var rect = el.getBoundingClientRect(),
+        scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+        scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
+    }
+
+    const calendarApi = this.calendar.getApi();
+    const calendarElm = calendarApi.el;
+    const calendarBody: HTMLElement | null = calendarElm.querySelector(
+      ".fc-body"
+    );
+
+    const timeGrid = calendarElm.querySelector(".fc-time-grid");
+    const tableCells = calendarElm.querySelectorAll(".fc-slats td:last-child");
+    const timeCells = calendarElm.querySelectorAll(".fc-slats td:first-child");
+    const dayHeaderCells = calendarElm.querySelectorAll(".fc-day-header");
+    const daysLength = dayHeaderCells.length;
+    let leftPos: number | null;
+    let cellHover: HTMLElement | null;
+
+    if (!calendarBody || !tableCells || !timeCells) {
+      throw new Error("Cant select, did HTML change ?");
+    }
+
+    calendarBody.addEventListener("mouseenter", (event: MouseEvent) => {
+      if (timeGrid) {
+        timeGrid.insertAdjacentHTML(
+          "beforeend",
+          `<div class="cell-hover"></div>`
+        );
+      }
+      cellHover = calendarElm.querySelector(".cell-hover");
+    });
+
+    calendarBody.addEventListener("mouseleave", () => {
+      if (cellHover && cellHover.parentNode) {
+        cellHover.parentNode.removeChild(cellHover);
+        cellHover = null;
+        leftPos = null;
+      }
+    });
+
+    Array.prototype.slice.call(timeCells).forEach((elm: HTMLElement, index) => {
+      elm.addEventListener("mouseenter", (event: MouseEvent) => {
+        if (cellHover) {
+          cellHover.style.display = "none";
+        }
+      });
+    });
+
+    const tableCellsArr = Array.prototype.slice.call(tableCells);
+    tableCellsArr.forEach((elm: HTMLElement, index) => {
+      elm.addEventListener("mousemove", (event: MouseEvent) => {
+        const clientBound = elm.getBoundingClientRect();
+        const leftPercentage =
+          (event.clientX - clientBound.left) / clientBound.width;
+        const activeRow = Math.ceil(daysLength * leftPercentage);
+
+        const activeDayClientBound = dayHeaderCells[
+          activeRow > 0 ? activeRow - 1 : 0
+        ].getBoundingClientRect();
+        if (activeDayClientBound.left !== leftPos) {
+          leftPos = activeDayClientBound.left;
+          if (cellHover) {
+            cellHover.style.left = `${leftPos}px`;
+          }
+        }
+      });
+
+      elm.addEventListener("mouseenter", (event: MouseEvent) => {
+        const clientBound = elm.getBoundingClientRect();
+        const width = Math.ceil(clientBound.width / daysLength);
+        const height = clientBound.height;
+
+        if (cellHover) {
+          const topPos = offset(elm).top - offset(calendarBody).top;
+          cellHover.style.display = "block";
+          cellHover.style.top = `${topPos}px`;
+          cellHover.style.width = `${width}px`;
+          cellHover.style.height = `${height}px`;
+        }
+      });
+    });
   }
 
   onAddEvent() {}

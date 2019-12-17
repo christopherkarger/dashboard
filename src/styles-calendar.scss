@@ -22,3 +22,12 @@
     border: 0 !important;
   }
 }
+
+.cell-hover {
+  display: none;
+  pointer-events: none;
+  background: lightblue;
+  position: absolute;
+  z-index: 100;
+  transition: all 0.1s ease;
+}

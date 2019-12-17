@@ -1,5 +1,7 @@
 full-calendar {
   display: block;
+  position: relative;
+  margin-top: 200px;
 }
 
 .calendar-wrapper {
@@ -7,7 +9,6 @@ full-calendar {
 }
 
 #calendar {
-  //height: 3000px;
 }
 
 .calendar-nav {
