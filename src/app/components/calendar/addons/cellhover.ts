@@ -1,14 +1,33 @@
 import { FullCalendarComponent } from "@fullcalendar/angular";
-
-interface IOffset {
-  width: number;
-  height: number;
-  left: number;
-  top: number;
-}
+import { IOffset } from "./cellhover.model";
 
 export class CellHover {
-  constructor(private calendar: FullCalendarComponent) {}
+  calendarBody: HTMLElement | null;
+  calendarElm: any;
+  timeGrid: HTMLElement | null;
+  tableCells: NodeListOf<Element> | null;
+  timeCells: NodeListOf<Element> | null;
+  dayHeaderCells: NodeListOf<Element> | null;
+  daysLength?: number;
+  leftPos?: number | null;
+  cellHover?: HTMLElement | null;
+
+  constructor(private calendar: FullCalendarComponent) {
+    const calendarApi = this.calendar.getApi();
+    this.calendarElm = calendarApi.el;
+    this.calendarBody = this.calendarElm.querySelector(".fc-body");
+    this.timeGrid = this.calendarElm.querySelector(".fc-time-grid");
+    this.tableCells = this.calendarElm.querySelectorAll(
+      ".fc-slats td:last-child"
+    );
+    this.timeCells = this.calendarElm.querySelectorAll(
+      ".fc-slats td:first-child"
+    );
+    this.dayHeaderCells = this.calendarElm.querySelectorAll(".fc-day-header");
+    if (this.dayHeaderCells) {
+      this.daysLength = this.dayHeaderCells.length;
+    }
+  }
 
   private offset(el: HTMLElement | Element): IOffset {
     var rect = el.getBoundingClientRect(),
@@ -23,82 +42,84 @@ export class CellHover {
   }
 
   create(): void {
-    const calendarApi = this.calendar.getApi();
-    const calendarElm = calendarApi.el;
-    const calendarBody: HTMLElement | null = calendarElm.querySelector(
-      ".fc-body"
-    );
-
-    const timeGrid = calendarElm.querySelector(".fc-time-grid");
-    const tableCells = calendarElm.querySelectorAll(".fc-slats td:last-child");
-    const timeCells = calendarElm.querySelectorAll(".fc-slats td:first-child");
-    const dayHeaderCells = calendarElm.querySelectorAll(".fc-day-header");
-    const daysLength = dayHeaderCells.length;
-    let leftPos: number | null;
-    let cellHover: HTMLElement | null;
-
-    if (!calendarBody || !timeGrid || !tableCells || !timeCells) {
-      throw new Error("Cant select, did HTML change ?");
+    if (
+      !this.calendarBody ||
+      !this.timeGrid ||
+      !this.tableCells ||
+      !this.timeCells ||
+      !this.calendarElm
+    ) {
+      throw new Error("Can't select, did HTML change ?");
     }
 
-    calendarBody.addEventListener("mouseenter", (event: MouseEvent) => {
-      timeGrid.insertAdjacentHTML(
-        "beforeend",
-        `<div class="cell-hover"></div>`
-      );
+    this.calendarBody.addEventListener("mouseenter", (event: MouseEvent) => {
+      if (this.timeGrid && this.calendarElm) {
+        this.timeGrid.insertAdjacentHTML(
+          "beforeend",
+          `<div class="cell-hover"></div>`
+        );
 
-      cellHover = calendarElm.querySelector(".cell-hover");
-    });
-
-    calendarBody.addEventListener("mouseleave", () => {
-      if (cellHover && cellHover.parentNode) {
-        cellHover.parentNode.removeChild(cellHover);
-        cellHover = null;
-        leftPos = null;
+        this.cellHover = this.calendarElm.querySelector(".cell-hover");
       }
     });
 
-    Array.prototype.slice.call(timeCells).forEach((elm: HTMLElement, index) => {
+    this.calendarBody.addEventListener("mouseleave", () => {
+      if (this.cellHover && this.cellHover.parentNode) {
+        this.cellHover.parentNode.removeChild(this.cellHover);
+        this.cellHover = null;
+        this.leftPos = null;
+      }
+    });
+
+    Array.prototype.slice.call(this.timeCells).forEach((elm: HTMLElement) => {
       elm.addEventListener("mouseenter", (event: MouseEvent) => {
-        if (cellHover) {
-          cellHover.style.display = "none";
+        if (this.cellHover) {
+          this.cellHover.style.display = "none";
         }
       });
     });
 
-    Array.prototype.slice
-      .call(tableCells)
-      .forEach((elm: HTMLElement, index) => {
-        elm.addEventListener("mousemove", (event: MouseEvent) => {
-          const clientBound = this.offset(elm);
-          const leftPercentage =
-            (event.clientX - clientBound.left) / clientBound.width;
-          const activeRow = Math.ceil(daysLength * leftPercentage);
-          const activeDayClientBound = this.offset(
-            dayHeaderCells[activeRow > 0 ? activeRow - 1 : 0]
-          );
-
-          if (activeDayClientBound.left !== leftPos) {
-            leftPos = activeDayClientBound.left;
-            if (cellHover) {
-              cellHover.style.left = `${leftPos}px`;
-            }
-          }
-        });
-
-        elm.addEventListener("mouseenter", (event: MouseEvent) => {
-          const clientBound = this.offset(elm);
-          const width = Math.ceil(clientBound.width / daysLength);
-          const height = clientBound.height;
-
-          if (cellHover) {
-            const topPos = this.offset(elm).top - this.offset(calendarBody).top;
-            cellHover.style.display = "block";
-            cellHover.style.top = `${topPos}px`;
-            cellHover.style.width = `${width}px`;
-            cellHover.style.height = `${height}px`;
-          }
-        });
+    Array.prototype.slice.call(this.tableCells).forEach((elm: HTMLElement) => {
+      elm.addEventListener("mousemove", (event: MouseEvent) => {
+        this.setLeftPosition(elm, event);
       });
+
+      elm.addEventListener("mouseenter", (event: MouseEvent) => {
+        if (!this.daysLength || !this.cellHover || !this.calendarBody) {
+          return;
+        }
+        const clientBound = this.offset(elm);
+        const width = Math.ceil(clientBound.width / this.daysLength);
+        const height = clientBound.height;
+        const topPos =
+          this.offset(elm).top - this.offset(this.calendarBody).top;
+
+        this.cellHover.style.display = "block";
+        this.cellHover.style.top = `${topPos}px`;
+        this.cellHover.style.width = `${width}px`;
+        this.cellHover.style.height = `${height}px`;
+        this.setLeftPosition(elm, event);
+      });
+    });
+  }
+
+  setLeftPosition(elm: HTMLElement, event: MouseEvent): void {
+    if (!this.dayHeaderCells || !this.daysLength) {
+      return;
+    }
+    const clientBound = this.offset(elm);
+    const leftPercentage =
+      (event.clientX - clientBound.left) / clientBound.width;
+    const activeRow = Math.ceil(this.daysLength * leftPercentage);
+    const activeDayClientBound = this.offset(
+      this.dayHeaderCells[activeRow > 0 ? activeRow - 1 : 0]
+    );
+
+    if (activeDayClientBound.left !== this.leftPos) {
+      this.leftPos = activeDayClientBound.left;
+      if (this.cellHover) {
+        this.cellHover.style.left = `${this.leftPos}px`;
+      }
+    }
   }
 }
