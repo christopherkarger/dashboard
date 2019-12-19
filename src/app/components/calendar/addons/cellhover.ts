@@ -8,6 +8,7 @@ export class CellHover {
   tableCells: NodeListOf<Element> | null;
   timeCells: NodeListOf<Element> | null;
   dayHeaderCells: NodeListOf<Element> | null;
+  timeSteps?: number;
   daysLength?: number;
   leftPos?: number | null;
   cellHover?: HTMLElement | null;
@@ -24,6 +25,9 @@ export class CellHover {
       ".fc-slats td:first-child"
     );
     this.dayHeaderCells = this.calendarElm.querySelectorAll(".fc-day-header");
+    if (this.timeCells) {
+      this.timeSteps = 60 / (this.timeCells.length / 24);
+    }
     if (this.dayHeaderCells) {
       this.daysLength = this.dayHeaderCells.length;
     }
@@ -79,28 +83,56 @@ export class CellHover {
       });
     });
 
-    Array.prototype.slice.call(this.tableCells).forEach((elm: HTMLElement) => {
-      elm.addEventListener("mousemove", (event: MouseEvent) => {
-        this.setLeftPosition(elm, event);
-      });
+    Array.prototype.slice
+      .call(this.tableCells)
+      .forEach((elm: HTMLElement, index: number) => {
+        elm.addEventListener("mousemove", (event: MouseEvent) => {
+          this.setLeftPosition(elm, event);
+        });
 
-      elm.addEventListener("mouseenter", (event: MouseEvent) => {
-        if (!this.daysLength || !this.cellHover || !this.calendarBody) {
-          return;
-        }
-        const clientBound = this.offset(elm);
-        const width = Math.ceil(clientBound.width / this.daysLength);
-        const height = clientBound.height;
-        const topPos =
-          this.offset(elm).top - this.offset(this.calendarBody).top;
+        elm.addEventListener("mouseenter", (event: MouseEvent) => {
+          if (!this.daysLength || !this.cellHover || !this.calendarBody) {
+            return;
+          }
+          const clientBound = this.offset(elm);
+          const width = Math.ceil(clientBound.width / this.daysLength);
+          const height = clientBound.height;
+          const topPos =
+            this.offset(elm).top - this.offset(this.calendarBody).top;
 
-        this.cellHover.style.display = "block";
-        this.cellHover.style.top = `${topPos}px`;
-        this.cellHover.style.width = `${width}px`;
-        this.cellHover.style.height = `${height}px`;
-        this.setLeftPosition(elm, event);
+          this.cellHover.style.display = "block";
+          this.cellHover.style.top = `${topPos}px`;
+          this.cellHover.style.width = `${width}px`;
+          this.cellHover.style.height = `${height}px`;
+          this.setLeftPosition(elm, event);
+          this.calculateCellTime(index);
+        });
       });
-    });
+  }
+
+  addLeadingZero(num: number): string {
+    return `${num < 10 ? 0 : ""}${num}`;
+  }
+
+  calculateCellTime(index: number): void {
+    if (this.timeSteps) {
+      const timeRaw = (index * this.timeSteps) / 60;
+      const startMinutes: number | string = 60 * (timeRaw % 1);
+      const hour: number | string = Math.floor(timeRaw);
+      const startTime = `${this.addLeadingZero(hour)}:${this.addLeadingZero(
+        startMinutes
+      )}`;
+
+      // const endMinutes = startMinutes + this.timeSteps;
+      // const endTime =
+      //   endMinutes === 60
+      //     ? `${this.addLeadingZero(hour + 1)}:00`
+      //     : `${this.addLeadingZero(hour)}:${endMinutes}`;
+
+      if (this.cellHover) {
+        this.cellHover.innerHTML = `${startTime}`;
+      }
+    }
   }
 
   setLeftPosition(elm: HTMLElement, event: MouseEvent): void {
