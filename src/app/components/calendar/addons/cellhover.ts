@@ -141,7 +141,7 @@ export class CellHover {
     }
     const clientBound = this.offset(elm);
     const leftPercentage =
-      (event.clientX - clientBound.left) / clientBound.width;
+      (event.clientX - clientBound.left + 1) / clientBound.width;
     const activeRow = Math.ceil(this.daysLength * leftPercentage);
     const activeDayClientBound = this.offset(
       this.dayHeaderCells[activeRow > 0 ? activeRow - 1 : 0]
