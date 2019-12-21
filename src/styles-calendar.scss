@@ -1,13 +1,13 @@
 .fc-header-toolbar {
   position: sticky;
   top: 0;
-  background: #fff;
+  background: #f7f7f8;
   z-index: 10;
 }
 
 .fc-toolbar.fc-header-toolbar {
   margin-bottom: 0;
-  background: #fff;
+  background: #f7f7f8;
   height: 70px;
 }
 
@@ -16,11 +16,18 @@
   top: 69px;
   background: #fff;
   z-index: 100;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
   &,
   th,
   thead {
-    border-color: #fff !important;
+    border-color: transparent !important;
+    background: #f7f7f8;
   }
+}
+
+.fc-body > tr > .fc-widget-content {
+  border-top: 0;
 }
 
 .fc-time-grid .fc-slats .fc-minor td {
