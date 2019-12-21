@@ -3,7 +3,7 @@ import { Validator } from "../../utilities/validator";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import momentPlugin from "@fullcalendar/moment";
-import { DateSpanApi } from "@fullcalendar/core";
+import { Calendar, DateSpanApi } from "@fullcalendar/core";
 import { CellHover } from "./addons/cellhover";
 
 //import dayGridPlugin from "@fullcalendar/daygrid";
@@ -25,12 +25,11 @@ export class CalendarComponent implements AfterViewInit {
   @ViewChild("calRef", { static: false })
   calRef?: ElementRef;
 
+  calendarApi?: Calendar;
   calendarForm: FormGroup;
   showNewEntry = false;
 
   constructor(private fb: FormBuilder) {
-    //let calendarApi = Validator.require(this.calendarComponent).getApi();
-
     this.calendarForm = this.fb.group({
       calendarView: "week"
     });
@@ -38,6 +37,9 @@ export class CalendarComponent implements AfterViewInit {
 
   onSelect(evt: DateSpanApi) {
     console.log(evt);
+    if (this.calendarApi) {
+      this.calendarApi.unselect();
+    }
   }
 
   onSelectAllow(evt: DateSpanApi) {
@@ -65,6 +67,7 @@ export class CalendarComponent implements AfterViewInit {
     if (this.calendar) {
       const cellhover = new CellHover(this.calendar);
       cellhover.create();
+      this.calendarApi = this.calendar.getApi();
     }
   }
 

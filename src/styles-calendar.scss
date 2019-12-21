@@ -19,8 +19,12 @@
   &,
   th,
   thead {
-    border: 0 !important;
+    border-color: #fff !important;
   }
+}
+
+.fc-time-grid .fc-slats .fc-minor td {
+  border-style: solid;
 }
 
 .cell-hover {
@@ -29,5 +33,5 @@
   background: lightblue;
   position: absolute;
   z-index: 100;
-  transition: all 0.1s ease;
+  transition: left 0.1s ease;
 }

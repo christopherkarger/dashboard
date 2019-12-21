@@ -91,12 +91,17 @@ export class CellHover {
         });
 
         elm.addEventListener("mouseenter", (event: MouseEvent) => {
-          if (!this.daysLength || !this.cellHover || !this.calendarBody) {
+          if (
+            !this.daysLength ||
+            !this.cellHover ||
+            !this.calendarBody ||
+            !this.dayHeaderCells
+          ) {
             return;
           }
-          const clientBound = this.offset(elm);
-          const width = Math.ceil(clientBound.width / this.daysLength);
-          const height = clientBound.height;
+
+          const width = this.dayHeaderCells[0].scrollWidth;
+          const height = elm.scrollHeight;
           const topPos =
             this.offset(elm).top - this.offset(this.calendarBody).top;
 
