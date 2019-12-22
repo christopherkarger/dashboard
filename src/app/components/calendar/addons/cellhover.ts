@@ -33,6 +33,14 @@ export class CellHover {
     }
   }
 
+  private cleanUp(): void {
+    if (this.cellHover && this.cellHover.parentNode) {
+      this.cellHover.parentNode.removeChild(this.cellHover);
+      this.cellHover = null;
+      this.leftPos = null;
+    }
+  }
+
   private offset(el: HTMLElement | Element): IOffset {
     var rect = el.getBoundingClientRect(),
       scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
@@ -57,6 +65,8 @@ export class CellHover {
     }
 
     this.calendarBody.addEventListener("mouseenter", (event: MouseEvent) => {
+      this.cleanUp();
+
       if (this.timeGrid && this.calendarElm) {
         this.timeGrid.insertAdjacentHTML(
           "beforeend",
@@ -68,11 +78,7 @@ export class CellHover {
     });
 
     this.calendarBody.addEventListener("mouseleave", () => {
-      if (this.cellHover && this.cellHover.parentNode) {
-        this.cellHover.parentNode.removeChild(this.cellHover);
-        this.cellHover = null;
-        this.leftPos = null;
-      }
+      this.cleanUp();
     });
 
     Array.prototype.slice.call(this.timeCells).forEach((elm: HTMLElement) => {
@@ -102,9 +108,13 @@ export class CellHover {
 
           const width = this.dayHeaderCells[0].scrollWidth;
           const height = elm.scrollHeight;
-          const topPos =
+          let topPos =
             this.offset(elm).top - this.offset(this.calendarBody).top;
 
+          // to show cellhover under the border of 1px
+          if (index > 0) {
+            topPos += 1;
+          }
           this.cellHover.style.display = "block";
           this.cellHover.style.top = `${topPos}px`;
           this.cellHover.style.width = `${width}px`;
