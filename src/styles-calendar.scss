@@ -27,11 +27,23 @@
 }
 
 .fc-body > tr > .fc-widget-content {
-  border-top: 0;
+  border: 0;
 }
 
-.fc-time-grid .fc-slats .fc-minor td {
-  border-style: solid;
+.fc-time-grid .fc-slats {
+  & > table {
+    border: inherit;
+    border-left: 0 hidden transparent;
+    border-right: 0 hidden transparent;
+  }
+
+  td:first-child {
+    border-left: 0;
+  }
+
+  .fc-minor td {
+    border-style: solid;
+  }
 }
 
 .cell-hover {

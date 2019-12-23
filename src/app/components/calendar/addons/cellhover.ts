@@ -1,5 +1,5 @@
 import { FullCalendarComponent } from "@fullcalendar/angular";
-import { IOffset } from "./cellhover.model";
+import { IOffset } from "../../../models/cellhover.model";
 
 export class CellHover {
   calendarBody: HTMLElement | null;
@@ -97,12 +97,7 @@ export class CellHover {
         });
 
         elm.addEventListener("mouseenter", (event: MouseEvent) => {
-          if (
-            !this.daysLength ||
-            !this.cellHover ||
-            !this.calendarBody ||
-            !this.dayHeaderCells
-          ) {
+          if (!this.cellHover || !this.calendarBody || !this.dayHeaderCells) {
             return;
           }
 
@@ -111,10 +106,10 @@ export class CellHover {
           let topPos =
             this.offset(elm).top - this.offset(this.calendarBody).top;
 
+          // To-Do: Get rid of this
           // to show cellhover under the border of 1px
-          if (index > 0) {
-            topPos += 1;
-          }
+          topPos += 1;
+
           this.cellHover.style.display = "block";
           this.cellHover.style.top = `${topPos}px`;
           this.cellHover.style.width = `${width}px`;
@@ -163,7 +158,8 @@ export class CellHover {
     );
 
     if (activeDayClientBound.left !== this.leftPos) {
-      this.leftPos = activeDayClientBound.left;
+      this.leftPos =
+        activeDayClientBound.left - this.offset(this.calendarElm).left;
       if (this.cellHover) {
         this.cellHover.style.left = `${this.leftPos}px`;
       }
