@@ -1,47 +1,31 @@
 import { FullCalendarComponent } from "@fullcalendar/angular";
 import { IOffset } from "../../../models/cellhover.model";
 
+type mouseEvent = (evt: MouseEvent) => void;
 export class CellHover {
-  calendarBody: HTMLElement | null;
-  calendarElm: any;
-  timeGrid: HTMLElement | null;
-  tableCells: NodeListOf<Element> | null;
-  timeCells: NodeListOf<Element> | null;
-  dayHeaderCells: NodeListOf<Element> | null;
+  calendarBody?: HTMLElement | null;
+  calendarElm?: HTMLElement;
+  timeGrid?: HTMLElement | null;
+  tableCells?: NodeListOf<HTMLElement> | null;
+  tableCellsArr?: HTMLElement[];
+  timeCells?: NodeListOf<HTMLElement> | null;
+  timeCellsArr?: HTMLElement[];
+  dayHeaderCells?: NodeListOf<HTMLElement> | null;
   timeSteps?: number;
   daysLength?: number;
   leftPos?: number | null;
   cellHover?: HTMLElement | null;
+  calendarBodyEnter?: mouseEvent;
+  calendarBodyLeave?: mouseEvent;
+  timeCellsEnter: mouseEvent[] = [];
+  tableCellsMove: mouseEvent[] = [];
+  tableCellsEnter: mouseEvent[] = [];
 
   constructor(private calendar: FullCalendarComponent) {
-    const calendarApi = this.calendar.getApi();
-    this.calendarElm = calendarApi.el;
-    this.calendarBody = this.calendarElm.querySelector(".fc-body");
-    this.timeGrid = this.calendarElm.querySelector(".fc-time-grid");
-    this.tableCells = this.calendarElm.querySelectorAll(
-      ".fc-slats td:last-child"
-    );
-    this.timeCells = this.calendarElm.querySelectorAll(
-      ".fc-slats td:first-child"
-    );
-    this.dayHeaderCells = this.calendarElm.querySelectorAll(".fc-day-header");
-    if (this.timeCells) {
-      this.timeSteps = 60 / (this.timeCells.length / 24);
-    }
-    if (this.dayHeaderCells) {
-      this.daysLength = this.dayHeaderCells.length;
-    }
+    this.init();
   }
 
-  private cleanUp(): void {
-    if (this.cellHover && this.cellHover.parentNode) {
-      this.cellHover.parentNode.removeChild(this.cellHover);
-      this.cellHover = null;
-      this.leftPos = null;
-    }
-  }
-
-  private offset(el: HTMLElement | Element): IOffset {
+  private offset(el: HTMLElement): IOffset {
     var rect = el.getBoundingClientRect(),
       scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
       scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -53,78 +37,177 @@ export class CellHover {
     };
   }
 
-  create(): void {
+  init(): void {
+    const calendarApi = this.calendar.getApi();
+    this.calendarElm = calendarApi.el;
+    this.calendarBody = this.calendarElm.querySelector<HTMLElement>(".fc-body");
+    this.timeGrid = this.calendarElm.querySelector<HTMLElement>(
+      ".fc-time-grid"
+    );
+
+    this.tableCells = this.calendarElm.querySelectorAll(
+      ".fc-slats td:last-child"
+    );
+    if (this.tableCells) {
+      this.tableCellsArr = this.convertNodeListToArray(this.tableCells);
+    }
+
+    this.timeCells = this.calendarElm.querySelectorAll(
+      ".fc-slats td:first-child"
+    );
+
+    if (this.timeCells) {
+      this.timeCellsArr = this.convertNodeListToArray(this.timeCells);
+    }
+
+    this.dayHeaderCells = this.calendarElm.querySelectorAll(".fc-day-header");
+    if (this.timeCells) {
+      this.timeSteps = 60 / (this.timeCells.length / 24);
+    }
+    if (this.dayHeaderCells) {
+      this.daysLength = this.dayHeaderCells.length;
+    }
+    this.create();
+  }
+
+  destroy(): void {
+    this.cleanUp();
+
+    if (this.calendarBody) {
+      if (this.calendarBodyEnter) {
+        this.calendarBody.removeEventListener(
+          "mouseenter",
+          this.calendarBodyEnter
+        );
+      }
+
+      if (this.calendarBodyLeave) {
+        this.calendarBody.removeEventListener(
+          "mouseleave",
+          this.calendarBodyLeave
+        );
+      }
+
+      if (this.timeCellsArr) {
+        this.timeCellsArr.forEach((elm: HTMLElement, index: number) => {
+          if (this.timeCellsEnter && this.timeCellsEnter[index]) {
+            elm.removeEventListener("mouseenter", this.timeCellsEnter[index]);
+          }
+        });
+        this.timeCellsEnter = [];
+      }
+
+      if (this.tableCellsArr) {
+        this.tableCellsArr.forEach((elm: HTMLElement, index: number) => {
+          if (this.tableCellsMove && this.tableCellsMove[index]) {
+            elm.removeEventListener("mousemove", this.tableCellsMove[index]);
+          }
+          if (this.tableCellsEnter && this.tableCellsEnter[index]) {
+            elm.removeEventListener("mouseenter", this.tableCellsEnter[index]);
+          }
+        });
+
+        this.tableCellsMove = [];
+        this.tableCellsEnter = [];
+      }
+    }
+  }
+
+  private cleanUp(): void {
+    if (this.cellHover && this.cellHover.parentNode) {
+      this.cellHover.parentNode.removeChild(this.cellHover);
+      this.cellHover = null;
+      this.leftPos = null;
+    }
+  }
+
+  private convertNodeListToArray(list: NodeListOf<HTMLElement>): HTMLElement[] {
+    return Array.prototype.slice.call(list);
+  }
+
+  private create(): void {
     if (
       !this.calendarBody ||
       !this.timeGrid ||
-      !this.tableCells ||
-      !this.timeCells ||
+      !this.tableCellsArr ||
+      !this.timeCellsArr ||
       !this.calendarElm
     ) {
       throw new Error("Can't select, did HTML change ?");
     }
 
-    this.calendarBody.addEventListener("mouseenter", (event: MouseEvent) => {
-      this.cleanUp();
+    this.calendarBody.addEventListener(
+      "mouseenter",
+      (this.calendarBodyEnter = () => {
+        this.cleanUp();
+        if (this.timeGrid && this.calendarElm) {
+          this.timeGrid.insertAdjacentHTML(
+            "beforeend",
+            `<div class="cell-hover"></div>`
+          );
 
-      if (this.timeGrid && this.calendarElm) {
-        this.timeGrid.insertAdjacentHTML(
-          "beforeend",
-          `<div class="cell-hover"></div>`
-        );
+          this.cellHover = this.calendarElm.querySelector<HTMLElement>(
+            ".cell-hover"
+          );
+        }
+      })
+    );
 
-        this.cellHover = this.calendarElm.querySelector(".cell-hover");
-      }
-    });
+    this.calendarBody.addEventListener(
+      "mouseleave",
+      (this.calendarBodyLeave = () => {
+        this.cleanUp();
+      })
+    );
 
-    this.calendarBody.addEventListener("mouseleave", () => {
-      this.cleanUp();
-    });
-
-    Array.prototype.slice.call(this.timeCells).forEach((elm: HTMLElement) => {
-      elm.addEventListener("mouseenter", (event: MouseEvent) => {
+    this.timeCellsArr.forEach((elm: HTMLElement) => {
+      const enterFunc = () => {
         if (this.cellHover) {
           this.cellHover.style.display = "none";
         }
-      });
+      };
+      this.timeCellsEnter.push(enterFunc);
+      elm.addEventListener("mouseenter", enterFunc);
     });
 
-    Array.prototype.slice
-      .call(this.tableCells)
-      .forEach((elm: HTMLElement, index: number) => {
-        elm.addEventListener("mousemove", (event: MouseEvent) => {
-          this.setLeftPosition(elm, event);
-        });
+    this.tableCellsArr.forEach((elm: HTMLElement, index: number) => {
+      const moveFunc = (event: MouseEvent) => {
+        this.setLeftPosition(elm, event);
+      };
 
-        elm.addEventListener("mouseenter", (event: MouseEvent) => {
-          if (!this.cellHover || !this.calendarBody || !this.dayHeaderCells) {
-            return;
-          }
+      this.tableCellsMove.push(moveFunc);
+      elm.addEventListener("mousemove", moveFunc);
 
-          const width = this.dayHeaderCells[0].scrollWidth;
-          const height = elm.scrollHeight;
-          let topPos =
-            this.offset(elm).top - this.offset(this.calendarBody).top;
+      const enterFunc = (event: MouseEvent) => {
+        if (!this.cellHover || !this.calendarBody || !this.dayHeaderCells) {
+          throw new Error("something is not defined");
+        }
 
-          // To-Do: Get rid of this
-          // to show cellhover under the border of 1px
-          topPos += 1;
+        const width = this.dayHeaderCells[0].scrollWidth;
+        const height = elm.scrollHeight;
+        let topPos = this.offset(elm).top - this.offset(this.calendarBody).top;
 
-          this.cellHover.style.display = "block";
-          this.cellHover.style.top = `${topPos}px`;
-          this.cellHover.style.width = `${width}px`;
-          this.cellHover.style.height = `${height}px`;
-          this.setLeftPosition(elm, event);
-          this.calculateCellTime(index);
-        });
-      });
+        // To-Do: Get rid of this
+        // to show cellhover under the border of 1px
+        topPos += 1;
+
+        this.cellHover.style.display = "block";
+        this.cellHover.style.top = `${topPos}px`;
+        this.cellHover.style.width = `${width}px`;
+        this.cellHover.style.height = `${height}px`;
+        this.setLeftPosition(elm, event);
+        this.calculateCellTime(index);
+      };
+      this.tableCellsEnter.push(enterFunc);
+      elm.addEventListener("mouseenter", enterFunc);
+    });
   }
 
-  addLeadingZero(num: number): string {
+  private addLeadingZero(num: number): string {
     return `${num < 10 ? 0 : ""}${num}`;
   }
 
-  calculateCellTime(index: number): void {
+  private calculateCellTime(index: number): void {
     if (this.timeSteps) {
       const timeRaw = (index * this.timeSteps) / 60;
       const startMinutes: number | string = 60 * (timeRaw % 1);
@@ -133,21 +216,15 @@ export class CellHover {
         startMinutes
       )}`;
 
-      // const endMinutes = startMinutes + this.timeSteps;
-      // const endTime =
-      //   endMinutes === 60
-      //     ? `${this.addLeadingZero(hour + 1)}:00`
-      //     : `${this.addLeadingZero(hour)}:${endMinutes}`;
-
       if (this.cellHover) {
         this.cellHover.innerHTML = `${startTime}`;
       }
     }
   }
 
-  setLeftPosition(elm: HTMLElement, event: MouseEvent): void {
-    if (!this.dayHeaderCells || !this.daysLength) {
-      return;
+  private setLeftPosition(elm: HTMLElement, event: MouseEvent): void {
+    if (!this.calendarElm || !this.dayHeaderCells || !this.daysLength) {
+      throw new Error("something is not defined");
     }
     const clientBound = this.offset(elm);
     const leftPercentage =

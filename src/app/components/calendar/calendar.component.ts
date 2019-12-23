@@ -29,6 +29,8 @@ export class CalendarComponent implements AfterViewInit {
   calendarForm: FormGroup;
   showNewEntry = false;
 
+  cellhover?: CellHover;
+
   constructor(private fb: FormBuilder) {
     this.calendarForm = this.fb.group({
       calendarView: "week"
@@ -65,9 +67,15 @@ export class CalendarComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if (this.calendar) {
-      const cellhover = new CellHover(this.calendar);
-      cellhover.create();
+      this.cellhover = new CellHover(this.calendar);
       this.calendarApi = this.calendar.getApi();
+    }
+  }
+
+  destroy() {
+    if (this.cellhover) {
+      console.log("Destroy");
+      this.cellhover.destroy();
     }
   }
 
