@@ -238,6 +238,11 @@ export class CellHover {
     if (activeDayClientBound.left !== this.leftPos) {
       this.leftPos =
         activeDayClientBound.left - this.offset(this.calendarElm).left;
+
+      // To-Do: Get rid of this
+      // to show cellhover left to the border of 1px
+      this.leftPos += 1;
+
       if (this.cellHover) {
         this.cellHover.style.left = `${this.leftPos}px`;
       }
