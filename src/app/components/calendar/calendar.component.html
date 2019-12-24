@@ -18,7 +18,8 @@
     <button (click)="prev()">Zurück</button>
     <button (click)="next()">Vor</button>
   </nav> -->
-  <button (click)="destroy()">destroy</button>
+  <button (click)="onChangeView('timeGridDay')">Day</button>
+  <button (click)="onChangeView('timeGridWeek')">Week</button>
   <full-calendar
     #calendar
     #calRef
@@ -36,17 +37,6 @@
     [plugins]="calendarPlugins"
     (select)="onSelect($event)"
     locale="de"
-    [events]="[
-      {
-        title: 'event 1',
-        start: '2019-12-13T06:30:00',
-        end: '2019-12-13T07:00:00'
-      },
-      {
-        title: 'event 2',
-        start: '2019-12-14T07:30:00',
-        end: '2019-12-14T08:00:00'
-      }
-    ]"
+    (datesRender)="onDatesRender()"
   ></full-calendar>
 </div>

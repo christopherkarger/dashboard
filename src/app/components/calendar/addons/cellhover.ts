@@ -1,7 +1,7 @@
 import { FullCalendarComponent } from "@fullcalendar/angular";
 import { IOffset } from "../../../models/cellhover.model";
 
-type mouseEvent = (evt: MouseEvent) => void;
+type TMouseEvent = (evt: MouseEvent) => void;
 export class CellHover {
   calendarBody?: HTMLElement | null;
   calendarElm?: HTMLElement;
@@ -15,20 +15,21 @@ export class CellHover {
   daysLength?: number;
   leftPos?: number | null;
   cellHover?: HTMLElement | null;
-  calendarBodyEnter?: mouseEvent;
-  calendarBodyLeave?: mouseEvent;
-  timeCellsEnter: mouseEvent[] = [];
-  tableCellsMove: mouseEvent[] = [];
-  tableCellsEnter: mouseEvent[] = [];
+  calendarBodyEnter?: TMouseEvent;
+  calendarBodyLeave?: TMouseEvent;
+  timeCellsEnter: TMouseEvent[] = [];
+  tableCellsMove: TMouseEvent[] = [];
+  tableCellsEnter: TMouseEvent[] = [];
 
   constructor(private calendar: FullCalendarComponent) {
     this.init();
   }
 
   private offset(el: HTMLElement): IOffset {
-    var rect = el.getBoundingClientRect(),
-      scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
-      scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const rect = el.getBoundingClientRect();
+    const scrollLeft =
+      window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     return {
       top: rect.top + scrollTop,
       left: rect.left + scrollLeft,

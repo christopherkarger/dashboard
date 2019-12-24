@@ -53,6 +53,22 @@ export class CalendarComponent implements AfterViewInit {
     return end - start === minutes15;
   }
 
+  onDatesRender() {
+    if (this.cellhover) {
+      this.cellhover.destroy();
+    }
+    if (this.calendar) {
+      this.cellhover = new CellHover(this.calendar);
+      this.calendarApi = this.calendar.getApi();
+    }
+  }
+
+  onChangeView(view: string): void {
+    if (this.calendarApi) {
+      this.calendarApi.changeView(view);
+    }
+  }
+
   changedView(): void {}
 
   next(): void {}
@@ -65,12 +81,7 @@ export class CalendarComponent implements AfterViewInit {
     this.showNewEntry = false;
   }
 
-  ngAfterViewInit(): void {
-    if (this.calendar) {
-      this.cellhover = new CellHover(this.calendar);
-      this.calendarApi = this.calendar.getApi();
-    }
-  }
+  ngAfterViewInit(): void {}
 
   destroy() {
     if (this.cellhover) {
