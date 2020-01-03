@@ -50,7 +50,7 @@ export class CellHover {
       ".fc-slats td:last-child"
     );
     if (this.tableCells) {
-      this.tableCellsArr = this.convertNodeListToArray(this.tableCells);
+      this.tableCellsArr = Array.from(this.tableCells);
     }
 
     this.timeCells = this.calendarElm.querySelectorAll(
@@ -58,7 +58,7 @@ export class CellHover {
     );
 
     if (this.timeCells) {
-      this.timeCellsArr = this.convertNodeListToArray(this.timeCells);
+      this.timeCellsArr = Array.from(this.timeCells);
     }
 
     this.dayHeaderCells = this.calendarElm.querySelectorAll(".fc-day-header");
@@ -120,10 +120,6 @@ export class CellHover {
       this.cellHover = null;
       this.leftPos = null;
     }
-  }
-
-  private convertNodeListToArray(list: NodeListOf<HTMLElement>): HTMLElement[] {
-    return Array.prototype.slice.call(list);
   }
 
   private create(): void {
